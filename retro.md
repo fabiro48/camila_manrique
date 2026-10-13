@@ -1,27 +1,62 @@
-# Retrospectiva del Sprint 3 - Dinámica Estrella de Mar
+# Retrospectiva Sprint 3 — Estrella de Mar
 
-En este documento se registra el análisis del equipo sobre el rendimiento, la colaboración y la implementación técnica durante el desarrollo del Sprint 3.
+> **Proyecto:** Soberano Distrito Barber — Aplicación Web Node.js + Express  
+> **Sprint:** 3  
+> **Fecha:** Septiembre 2026  
+> **Equipo:** Equipo de Desarrollo Web
 
-## 1. Continuar haciendo (Keep Doing)
-* Mantener la comunicación constante mediante el grupo de trabajo para resolver dudas técnicas rápidamente para agilizar el proceso de desarollo de la pagina.
-* Seguir organizando los archivos de código en componentes reutilizables (partials) para mantener orden.
-* Cuplir con las fechas de entrega de cada trabajo.
+---
 
-## 2. Hacer más (More Of)
-* Hacer más pruebas locales en el navegador antes de subir los cambios definitivos a GitHub.
-* Aumentar la revisión cruzada de código entre los integrantes del equipo antes de fusionar ramas.
-* Realizar más practicas para conocer mejor las herramientas que usasos y como funcionan, para agilizat al momento de realizar el proyecto.
+## ⭐ Estrella de Mar
 
+La dinámica "Estrella de Mar" nos permite reflexionar sobre el trabajo del equipo desde cinco perspectivas para mejorar continuamente.
 
-## 3. Empezar a hacer (Start Doing)
-* Empezar a documentar las reuniones de seguimiento de manera formal (creando archivos de registro diario o semanal)"Pero es mucho trabajo jajajaja".
-* Utilizar de forma más activa el tablero de tareas para mover los estados de "Pendiente" a "Completado".
-* Tratar de realizat los trabajos juntos para concer cadda una de las partes del proyecto y saber que hacen los demas compañeros.
+---
 
-## 4. Hacer menos (Less Of)
-* Dejar tareas de programación o configuración para el último día del Sprint"SUPER IMPORTANTE".
-* Depender de un solo "integrante" para resolver problemas complejos de Git o Express.
+### 🟢 Start Doing — Empezar a hacer
 
-## 5. Dejar de hacer (Stop Doing)
-* Subir cambios directos a la rama principal sin verificar que el servidor local en Node.js inicie sin errores.
-* Trabajar de manera aislada sin actualizar el estado de las tareas en el equipo.
+- Escribir pruebas básicas para cada vista antes de considerarla terminada.
+- Documentar los cambios de estructura de carpetas en el README cada vez que se reorganice el proyecto.
+- Hacer revisión de código entre pares (code review) antes de mergear cambios al branch principal.
+- Definir el contrato de las rutas (URL, método, parámetros esperados) antes de implementarlas.
+
+---
+
+### 🔵 More of — Más de esto
+
+- Más comunicación durante la integración de partials para evitar conflictos de estilos.
+- Más commits pequeños y descriptivos en lugar de commits grandes con muchos cambios juntos.
+- Más uso de comentarios en el código EJS para indicar qué datos espera cada vista del controlador.
+- Más planning antes de comenzar tareas para estimar mejor los tiempos.
+
+---
+
+### 🟡 Keep Doing — Seguir haciendo
+
+- Mantener la separación de responsabilidades: partials reutilizables independientes del contenido de cada vista.
+- Continuar organizando las vistas por dominio (`main/`, `products/`) para mantener la escalabilidad.
+- Seguir usando EJS como motor de plantillas con la sintaxis estándar de includes.
+- Conservar la estructura de carpetas acordada desde el inicio del sprint.
+- Mantener el servidor Express limpio y bien comentado con secciones delimitadas.
+
+---
+
+### 🟠 Less of — Menos de esto
+
+- Menos código repetido en las vistas: si algo se repite más de dos veces, debería ser un partial.
+- Menos cambios de último momento en la estructura de archivos sin avisar al equipo.
+- Menos dependencia de estilos inline en las vistas; mover estilos específicos a clases en el `head.ejs`.
+- Menos ambigüedad en los nombres de variables que se pasan desde el controlador a la vista.
+
+---
+
+### 🔴 Stop Doing — Dejar de hacer
+
+- Dejar de mezclar lógica de negocio dentro de las vistas EJS; eso le corresponde al controlador.
+- Dejar de trabajar sobre el branch `main` directamente sin crear una rama de feature.
+- Dejar de dejar comentarios con `TODO` sin asignar a nadie ni agregar a la lista de tareas.
+- Dejar de ignorar los mensajes de advertencia del servidor al iniciar (`app.js` hints de ESLint).
+
+---
+
+*Retrospectiva facilitada por el equipo al final del Sprint 3.*
