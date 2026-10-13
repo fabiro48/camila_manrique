@@ -1,6 +1,6 @@
 # Daily Standups — Sprint 3
 
-> **Proyecto:** Soberano Distrito Barber — Aplicación Web Node.js + Express  
+> **Proyecto:** Camila Manrique — Marroquinería & Bolsos Exclusivos (Node.js + Express)  
 > **Sprint:** 3  
 > **Duración del sprint:** 2 semanas — Septiembre 2026
 

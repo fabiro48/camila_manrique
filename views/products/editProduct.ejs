@@ -4,21 +4,21 @@
 
     <main style="max-width: 600px; margin: 80px auto; padding: 0 20px;">
         <div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 40px;">
-            <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 8px; color: var(--text-main);">Editar Producto</h2>
-            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 30px;">Modifica los datos del servicio o producto.</p>
+            <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 8px; color: var(--text-main);">Editar Bolso / Producto</h2>
+            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 30px;">Modifica los datos del bolso o accesorio en el catálogo.</p>
 
             <form action="/productos/<%= product.id %>" method="POST">
                 <!-- Method override para PUT/PATCH si se usa method-override -->
                 <input type="hidden" name="_method" value="PUT">
 
                 <div class="form-group">
-                    <label for="nombre">Nombre del servicio / producto</label>
+                    <label for="nombre">Nombre del bolso / accesorio</label>
                     <input
                         type="text"
                         id="nombre"
                         name="nombre"
                         value="<%= product.nombre %>"
-                        placeholder="Ej: Corte de cabello clásico"
+                        placeholder="Ej: Bolso Clásico de Cuero Camel"
                         maxlength="100"
                         required
                     >
@@ -31,7 +31,7 @@
                         id="precio"
                         name="precio"
                         value="<%= product.precio %>"
-                        placeholder="Ej: 25000"
+                        placeholder="Ej: 180000"
                         min="0.01"
                         max="999999.99"
                         step="0.01"
@@ -46,7 +46,7 @@
                         id="descripcion"
                         name="descripcion"
                         value="<%= product.descripcion || '' %>"
-                        placeholder="Breve descripción del servicio"
+                        placeholder="Ej: Cuero genuino, cierre dorado, correa ajustable"
                         maxlength="255"
                     >
                 </div>

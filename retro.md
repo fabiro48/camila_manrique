@@ -1,6 +1,6 @@
 # Retrospectiva Sprint 3 — Estrella de Mar
 
-> **Proyecto:** Soberano Distrito Barber — Aplicación Web Node.js + Express  
+> **Proyecto:** Camila Manrique — Marroquinería & Bolsos Exclusivos (Node.js + Express)  
 > **Sprint:** 3  
 > **Fecha:** Septiembre 2026  
 > **Equipo:** Equipo de Desarrollo Web
