@@ -1,0 +1,47 @@
+<%- include('../partials/head') %>
+<body>
+    <%- include('../partials/header') %>
+
+    <main style="max-width: 1000px; margin: 60px auto; padding: 0 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+            <h2 style="font-size: 28px; font-weight: 700;">Catálogo de Productos</h2>
+            <a href="/products/create" class="btn-agendar">+ Agregar Bolso</a>
+        </div>
+
+        <% if (products.length === 0) { %>
+            <p style="color: var(--text-muted); text-align: center; padding: 60px 0;">
+                No hay productos registrados aún.
+            </p>
+        <% } else { %>
+            <div class="services-grid">
+                <% products.forEach(product => { %>
+                    <div class="service-card">
+                        <img src="<%= product.image %>" alt="<%= product.name %>">
+                        <div class="service-card-content" style="flex-direction: column; align-items: flex-start; gap: 10px;">
+                            <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+                                <h4><%= product.name %></h4>
+                                <% if (product.inOffer) { %>
+                                    <span style="background: #e11d48; color: #fff; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: bold;">OFERTA</span>
+                                <% } %>
+                            </div>
+                            <span class="price-tag">$<%= product.price.toLocaleString('es-CO') %></span>
+                            <p style="font-size: 12px; color: var(--text-muted); line-height: 1.4;">
+                                <%= product.description.substring(0, 80) %>...
+                            </p>
+                            <div style="display: flex; gap: 8px; width: 100%; margin-top: 6px;">
+                                <a href="/products/<%= product.id %>" style="flex:1; text-align:center; padding: 7px; border-radius: 6px; border: 1px solid var(--border-color); color: var(--text-muted); text-decoration: none; font-size: 12px;">Ver</a>
+                                <a href="/products/<%= product.id %>/edit" style="flex:1; text-align:center; padding: 7px; border-radius: 6px; background: var(--accent-gold); color: #000; text-decoration: none; font-size: 12px; font-weight: 600;">Editar</a>
+                                <form action="/products/<%= product.id %>?_method=DELETE" method="POST" style="flex:1;" onsubmit="return confirm('¿Eliminar este producto?')">
+                                    <button type="submit" style="width:100%; padding: 7px; border-radius: 6px; background: #1e293b; border: 1px solid #e11d48; color: #e11d48; font-size: 12px; cursor: pointer;">Eliminar</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        <% } %>
+    </main>
+
+    <%- include('../partials/footer') %>
+</body>
+</html>

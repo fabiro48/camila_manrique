@@ -4,72 +4,48 @@
 
     <main style="max-width: 600px; margin: 80px auto; padding: 0 20px;">
         <div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 40px;">
+            <a href="/products" style="color: var(--text-muted); text-decoration: none; font-size: 13px; display: inline-block; margin-bottom: 20px;">← Volver al catálogo</a>
             <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 8px; color: var(--text-main);">Editar Bolso / Producto</h2>
             <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 30px;">Modifica los datos del bolso o accesorio en el catálogo.</p>
 
-            <form action="/productos/<%= product.id %>" method="POST">
-                <!-- Method override para PUT/PATCH si se usa method-override -->
-                <input type="hidden" name="_method" value="PUT">
-
+            <form action="/products/<%= product.id %>?_method=PUT" method="POST">
                 <div class="form-group">
-                    <label for="nombre">Nombre del bolso / accesorio</label>
-                    <input
-                        type="text"
-                        id="nombre"
-                        name="nombre"
-                        value="<%= product.nombre %>"
-                        placeholder="Ej: Bolso Clásico de Cuero Camel"
-                        maxlength="100"
-                        required
-                    >
+                    <label for="name">Nombre del bolso / accesorio</label>
+                    <input type="text" id="name" name="name" value="<%= product.name %>" maxlength="100" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="precio">Precio (COP)</label>
-                    <input
-                        type="number"
-                        id="precio"
-                        name="precio"
-                        value="<%= product.precio %>"
-                        placeholder="Ej: 180000"
-                        min="0.01"
-                        max="999999.99"
-                        step="0.01"
-                        required
-                    >
+                    <label for="description">Descripción</label>
+                    <input type="text" id="description" name="description" value="<%= product.description %>" maxlength="255" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="descripcion">Descripción (opcional)</label>
-                    <input
-                        type="text"
-                        id="descripcion"
-                        name="descripcion"
-                        value="<%= product.descripcion || '' %>"
-                        placeholder="Ej: Cuero genuino, cierre dorado, correa ajustable"
-                        maxlength="255"
-                    >
+                    <label for="price">Precio (COP)</label>
+                    <input type="number" id="price" name="price" value="<%= product.price %>" min="0.01" max="9999999" step="0.01" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="category">Categoría</label>
+                    <select id="category" name="category" required style="width:100%; padding:10px; background:var(--bg-color); border:1px solid var(--border-color); border-radius:6px; color:#fff; font-size:13px;">
+                        <% ['Tote','Bandolera','Morral','Mini Bag','Cartera','Clutch','Otro'].forEach(cat => { %>
+                            <option value="<%= cat %>" <%= product.category === cat ? 'selected' : '' %>><%= cat %></option>
+                        <% }) %>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="image">URL de imagen</label>
+                    <input type="url" id="image" name="image" value="<%= product.image %>" maxlength="500">
+                </div>
+
+                <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                    <input type="checkbox" id="inOffer" name="inOffer" value="on" <%= product.inOffer ? 'checked' : '' %> style="width:auto; cursor:pointer;">
+                    <label for="inOffer" style="margin-bottom: 0; cursor: pointer;">¿Está en oferta?</label>
                 </div>
 
                 <div style="display: flex; gap: 12px; margin-top: 24px;">
-                    <button type="submit" class="btn-agendar" style="flex: 1;">
-                        Actualizar Producto
-                    </button>
-                    <a href="/" style="
-                        flex: 1;
-                        display: inline-block;
-                        text-align: center;
-                        padding: 10px 20px;
-                        border-radius: 6px;
-                        border: 1px solid var(--border-color);
-                        color: var(--text-muted);
-                        text-decoration: none;
-                        font-size: 14px;
-                        font-weight: 600;
-                        transition: border-color 0.2s;
-                    ">
-                        Cancelar
-                    </a>
+                    <button type="submit" class="btn-agendar" style="flex: 1;">Actualizar Producto</button>
+                    <a href="/products" style="flex:1; display:inline-block; text-align:center; padding:10px 20px; border-radius:6px; border:1px solid var(--border-color); color:var(--text-muted); text-decoration:none; font-size:14px; font-weight:600;">Cancelar</a>
                 </div>
             </form>
         </div>
