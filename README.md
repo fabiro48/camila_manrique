@@ -1,5 +1,10 @@
 # Camila Manrique — Marroquinería & Bolsos Exclusivos
 
+> 📋 **Tablero de gestión del proyecto:**
+> ### 👉 [https://github.com/users/fabiro48/projects/1](https://github.com/users/fabiro48/projects/1)
+
+---
+
 Aplicación web e-commerce desarrollada con **Node.js**, **Express** y **EJS** para la tienda de marroquinería artesanal "Camila Manrique", ubicada en el Centro Comercial San Gil Plaza, Santander — Colombia.
 
 ---
@@ -83,21 +88,36 @@ Luego abre el navegador en: [http://localhost:3000](http://localhost:3000)
 
 ## Sprints del proyecto
 
+### Sprint 1
+- Planificación del proyecto y definición del stack tecnológico.
+
 ### Sprint 2
-- Estructura base de la aplicación en Node.js + Express
-- Página principal estática en HTML
+- Estructura base de la aplicación en Node.js + Express.
+- Página principal estática en HTML.
 
 ### Sprint 3
-- Integración de EJS como motor de plantillas
-- Creación de componentes reutilizables: `head`, `header` y `footer` (partials)
-- Reorganización de vistas en subcarpetas por dominio (`main/`, `products/`)
-- Documentación ágil: retrospectiva (Estrella de Mar) y Daily Standups
+- Integración de EJS como motor de plantillas.
+- Creación de componentes reutilizables: `head`, `header` y `footer` (partials).
+- Reorganización de vistas en subcarpetas por dominio (`main/`, `products/`).
+- Documentación ágil: retrospectiva con Estrella de Mar (`retro.md`) y Daily Standups (`daily.md`).
 
 ### Sprint 4
-- Arquitectura MVC: controladores y rutas separados
-- CRUD completo de productos usando el módulo `fs` de Node.js y JSON como base de datos
-- Soporte para métodos PUT y DELETE desde formularios HTML con `method-override`
-- Vistas: listado, detalle, creación y edición de productos
+- Arquitectura MVC: controladores y rutas separados.
+- CRUD completo de productos usando `fs` de Node.js y JSON como base de datos.
+- Soporte para métodos PUT y DELETE desde formularios HTML con `method-override`.
+- Vistas: listado, detalle, creación y edición de productos.
+
+---
+
+## Ramas del repositorio
+
+| Rama | Contenido |
+|------|-----------|
+| `main` | Versión estable más reciente |
+| `sprint-1` | Planificación inicial |
+| `sprint-2` | Aplicación base HTML |
+| `sprint-3` | Motor EJS y partials |
+| `sprint-4` | CRUD de productos con JSON |
 
 ---
 
@@ -105,11 +125,12 @@ Luego abre el navegador en: [http://localhost:3000](http://localhost:3000)
 
 - [`retro.md`](./retro.md) — Retrospectiva Sprint 3 con la dinámica Estrella de Mar
 - [`daily.md`](./daily.md) — Registro de Daily Standups del Sprint 3
+- 📋 [Tablero de gestión](https://github.com/users/fabiro48/projects/1)
 
 ---
 
 ## Autor
 
 Proyecto académico desarrollado como parte del curso de Desarrollo Web.  
-**Institución:** SENA / Universidad — San Gil, Santander, Colombia  
+**Institución:** SENA — San Gil, Santander, Colombia  
 **Año:** 2026
