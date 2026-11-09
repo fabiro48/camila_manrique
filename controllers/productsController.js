@@ -1,116 +1,138 @@
-const fs   = require('fs');
-const path = require('path');
-
-// Ruta absoluta al archivo JSON
-const DB_PATH = path.join(__dirname, '../data/productsDataBase.json');
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-/** Lee y parsea el JSON de productos */
-function readDB() {
-    const raw = fs.readFileSync(DB_PATH, 'utf-8');
-    return JSON.parse(raw);
-}
-
-/** Serializa y escribe el array de productos en el JSON */
-function writeDB(products) {
-    fs.writeFileSync(DB_PATH, JSON.stringify(products, null, 2), 'utf-8');
-}
-
-// ─── CRUD ─────────────────────────────────────────────────────────────────────
+'use strict';
+const { Product, Category } = require('../database/models');
+const { Op }                = require('sequelize');
 
 const productsController = {
 
     /** GET /products — Lista todos los productos */
-    index(_req, res) {
-        const products = readDB();
-        res.render('products/index', { products });
+    async index(req, res) {
+        try {
+            let products;
+
+            if (req.query.q) {
+                const term = req.query.q;
+                products = await Product.findAll({
+                    where: {
+                        [Op.or]: [
+                            { nombre:      { [Op.like]: `%${term}%` } },
+                            { descripcion: { [Op.like]: `%${term}%` } }
+                        ]
+                    },
+                    include: [{ model: Category, as: 'category' }]
+                });
+            } else {
+                products = await Product.findAll({
+                    include: [{ model: Category, as: 'category' }]
+                });
+            }
+
+            res.render('products/index', { products });
+        } catch (err) {
+            console.error('Error al listar productos:', err);
+            res.status(500).send('Error interno del servidor.');
+        }
     },
 
     /** GET /products/create — Formulario de creación */
-    create(_req, res) {
-        res.render('products/createProduct');
+    async create(_req, res) {
+        try {
+            const categories = await Category.findAll();
+            res.render('products/createProduct', { categories });
+        } catch (err) {
+            console.error('Error al cargar formulario de creación:', err);
+            res.status(500).send('Error interno del servidor.');
+        }
     },
 
     /** POST /products — Guarda un nuevo producto */
-    store(req, res) {
-        const products = readDB();
-
-        // Genera un ID único (mayor existente + 1)
-        const newId = products.length > 0
-            ? Math.max(...products.map(p => p.id)) + 1
-            : 1;
-
-        const newProduct = {
-            id:          newId,
-            name:        req.body.name        || req.body.nombre || '',
-            description: req.body.description || req.body.descripcion || '',
-            price:       parseFloat(req.body.price || req.body.precio) || 0,
-            category:    req.body.category    || req.body.categoria || '',
-            image:       req.body.image       || req.body.imagen || '',
-            inOffer:     req.body.inOffer === 'true' || req.body.inOffer === 'on'
-        };
-
-        products.push(newProduct);
-        writeDB(products);
-
-        res.redirect('/products');
+    async store(req, res) {
+        try {
+            await Product.create({
+                nombre:      req.body.nombre      || req.body.name        || '',
+                descripcion: req.body.descripcion || req.body.description || '',
+                precio:      parseFloat(req.body.precio || req.body.price) || 0,
+                imagen:      req.file ? req.file.filename : (req.body.imagen || req.body.image || null),
+                inOffer:     req.body.inOffer === 'true' || req.body.inOffer === 'on',
+                categoryId:  req.body.categoryId  || null,
+                stock:       parseInt(req.body.stock) || 0
+            });
+            res.redirect('/products');
+        } catch (err) {
+            console.error('Error al crear producto:', err);
+            res.status(500).send('Error interno del servidor.');
+        }
     },
 
     /** GET /products/:id — Detalle de un producto */
-    detail(req, res) {
-        const products = readDB();
-        const product  = products.find(p => p.id === parseInt(req.params.id));
+    async detail(req, res) {
+        try {
+            const product = await Product.findByPk(req.params.id, {
+                include: [{ model: Category, as: 'category' }]
+            });
 
-        if (!product) {
-            return res.status(404).render('main/index'); // fallback al home
+            if (!product) {
+                return res.status(404).render('main/index');
+            }
+
+            res.render('products/detail', { product });
+        } catch (err) {
+            console.error('Error al obtener detalle del producto:', err);
+            res.status(500).send('Error interno del servidor.');
         }
-
-        res.render('products/detail', { product });
     },
 
     /** GET /products/:id/edit — Formulario de edición */
-    edit(req, res) {
-        const products = readDB();
-        const product  = products.find(p => p.id === parseInt(req.params.id));
+    async edit(req, res) {
+        try {
+            const product    = await Product.findByPk(req.params.id);
+            const categories = await Category.findAll();
 
-        if (!product) {
-            return res.redirect('/products');
+            if (!product) {
+                return res.redirect('/products');
+            }
+
+            res.render('products/editProduct', { product, categories });
+        } catch (err) {
+            console.error('Error al cargar formulario de edición:', err);
+            res.status(500).send('Error interno del servidor.');
         }
-
-        res.render('products/editProduct', { product });
     },
 
     /** PUT /products/:id — Actualiza un producto */
-    update(req, res) {
-        const products = readDB();
-        const index    = products.findIndex(p => p.id === parseInt(req.params.id));
+    async update(req, res) {
+        try {
+            const product = await Product.findByPk(req.params.id);
 
-        if (index === -1) {
-            return res.redirect('/products');
+            if (!product) {
+                return res.redirect('/products');
+            }
+
+            await product.update({
+                nombre:      req.body.nombre      || req.body.name        || product.nombre,
+                descripcion: req.body.descripcion || req.body.description || product.descripcion,
+                precio:      parseFloat(req.body.precio || req.body.price) || product.precio,
+                imagen:      req.file ? req.file.filename : (req.body.imagen || req.body.image || product.imagen),
+                inOffer:     req.body.inOffer === 'true' || req.body.inOffer === 'on',
+                categoryId:  req.body.categoryId  || product.categoryId,
+                stock:       parseInt(req.body.stock) || product.stock
+            });
+
+            res.redirect('/products');
+        } catch (err) {
+            console.error('Error al actualizar producto:', err);
+            res.status(500).send('Error interno del servidor.');
         }
-
-        products[index] = {
-            ...products[index],
-            name:        req.body.name        || req.body.nombre        || products[index].name,
-            description: req.body.description || req.body.descripcion   || products[index].description,
-            price:       parseFloat(req.body.price || req.body.precio)  || products[index].price,
-            category:    req.body.category    || req.body.categoria     || products[index].category,
-            image:       req.body.image       || req.body.imagen        || products[index].image,
-            inOffer:     req.body.inOffer === 'true' || req.body.inOffer === 'on'
-        };
-
-        writeDB(products);
-        res.redirect('/products');
     },
 
     /** DELETE /products/:id — Elimina un producto */
-    destroy(req, res) {
-        const products = readDB();
-        const filtered = products.filter(p => p.id !== parseInt(req.params.id));
-
-        writeDB(filtered);
-        res.redirect('/products');
+    async destroy(req, res) {
+        try {
+            await Product.destroy({ where: { id: req.params.id } });
+            res.redirect('/products');
+        } catch (err) {
+            console.error('Error al eliminar producto:', err);
+            res.status(500).send('Error interno del servidor.');
+        }
     }
 };
 

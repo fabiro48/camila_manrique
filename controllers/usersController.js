@@ -1,21 +1,6 @@
-const fs     = require('fs');
-const path   = require('path');
-const bcrypt = require('bcryptjs');
-
-const USERS_PATH = path.join(__dirname, '../data/users.json');
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function readUsers() {
-    const raw = fs.readFileSync(USERS_PATH, 'utf-8');
-    return JSON.parse(raw);
-}
-
-function writeUsers(users) {
-    fs.writeFileSync(USERS_PATH, JSON.stringify(users, null, 2), 'utf-8');
-}
-
-// ─── Controlador ─────────────────────────────────────────────────────────────
+'use strict';
+const bcrypt        = require('bcryptjs');
+const { User }      = require('../database/models');
 
 const usersController = {
 
@@ -26,10 +11,12 @@ const usersController = {
 
     // POST /users/register
     async store(req, res) {
-        const { name, email, password, confirmPassword } = req.body;
+        const { nombre, apellido, name, email, password, confirmPassword } = req.body;
+        const nombreFinal   = (nombre || name || '').trim();
+        const apellidoFinal = (apellido || '').trim();
         const errors = [];
 
-        if (!name || name.trim().length < 2)
+        if (!nombreFinal || nombreFinal.length < 2)
             errors.push('El nombre debe tener al menos 2 caracteres.');
         if (!email || !email.includes('@'))
             errors.push('El correo electrónico no es válido.');
@@ -38,42 +25,44 @@ const usersController = {
         if (password !== confirmPassword)
             errors.push('Las contraseñas no coinciden.');
 
-        const users       = readUsers();
-        const emailExists = users.find(u => u.email === email);
-        if (emailExists) errors.push('Ya existe una cuenta con ese correo.');
-
         if (errors.length > 0) {
             return res.render('users/register', { errors });
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const newId          = users.length > 0
-            ? Math.max(...users.map(u => u.id)) + 1
-            : 1;
+        try {
+            const emailExists = await User.findOne({ where: { email: email.trim().toLowerCase() } });
+            if (emailExists) {
+                return res.render('users/register', { errors: ['Ya existe una cuenta con ese correo.'] });
+            }
 
-        const imageFile = req.file ? req.file.filename : 'default-avatar.png';
+            const hashedPassword = await bcrypt.hash(password, 10);
+            const imageFile      = req.file ? req.file.filename : null;
 
-        const newUser = {
-            id:       newId,
-            name:     name.trim(),
-            email:    email.trim().toLowerCase(),
-            password: hashedPassword,
-            image:    imageFile,
-            createdAt: new Date().toISOString()
-        };
+            const newUser = await User.create({
+                nombre:   nombreFinal,
+                apellido: apellidoFinal,
+                email:    email.trim().toLowerCase(),
+                password: hashedPassword,
+                imagen:   imageFile
+            });
 
-        users.push(newUser);
-        writeUsers(users);
+            // Auto-login tras registro
+            req.session.user = {
+                id:     newUser.id,
+                nombre: newUser.nombre,
+                email:  newUser.email,
+                image:  newUser.imagen
+            };
 
-        // Auto-login tras registro
-        req.session.user = {
-            id:    newUser.id,
-            name:  newUser.name,
-            email: newUser.email,
-            image: newUser.image
-        };
+            res.redirect('/users/profile');
 
-        res.redirect('/users/profile');
+        } catch (err) {
+            if (err.name === 'SequelizeUniqueConstraintError') {
+                return res.render('users/register', { errors: ['Ya existe una cuenta con ese correo.'] });
+            }
+            console.error('Error al registrar usuario:', err);
+            res.status(500).send('Error interno del servidor.');
+        }
     },
 
     // GET /users/login
@@ -85,35 +74,40 @@ const usersController = {
     async authenticate(req, res) {
         const { email, password, rememberMe } = req.body;
 
-        const users = readUsers();
-        const user  = users.find(u => u.email === email.trim().toLowerCase());
+        try {
+            const user = await User.findOne({ where: { email: email.trim().toLowerCase() } });
 
-        if (!user) {
-            return res.render('users/login', { error: 'Correo o contraseña incorrectos.' });
+            if (!user) {
+                return res.render('users/login', { error: 'Correo o contraseña incorrectos.' });
+            }
+
+            const validPassword = await bcrypt.compare(password, user.password);
+            if (!validPassword) {
+                return res.render('users/login', { error: 'Correo o contraseña incorrectos.' });
+            }
+
+            // Guardar en sesión
+            req.session.user = {
+                id:     user.id,
+                nombre: user.nombre,
+                email:  user.email,
+                image:  user.imagen
+            };
+
+            // Cookie "Recordar usuario" — 7 días
+            if (rememberMe === 'on') {
+                res.cookie('rememberUser', user.email, {
+                    maxAge:   7 * 24 * 60 * 60 * 1000,
+                    httpOnly: true
+                });
+            }
+
+            res.redirect('/users/profile');
+
+        } catch (err) {
+            console.error('Error al autenticar usuario:', err);
+            res.status(500).send('Error interno del servidor.');
         }
-
-        const validPassword = await bcrypt.compare(password, user.password);
-        if (!validPassword) {
-            return res.render('users/login', { error: 'Correo o contraseña incorrectos.' });
-        }
-
-        // Guardar en sesión
-        req.session.user = {
-            id:    user.id,
-            name:  user.name,
-            email: user.email,
-            image: user.image
-        };
-
-        // Cookie "Recordar usuario" — 7 días
-        if (rememberMe === 'on') {
-            res.cookie('rememberUser', user.email, {
-                maxAge:   7 * 24 * 60 * 60 * 1000,
-                httpOnly: true
-            });
-        }
-
-        res.redirect('/users/profile');
     },
 
     // GET /users/profile

@@ -21,11 +21,11 @@
             <a href="/users/profile" style="display:flex; align-items:center; gap:8px; text-decoration:none; color:var(--text-muted); font-size:13px;">
                 <img
                     src="/uploads/<%= sessionUser.image %>"
-                    alt="<%= sessionUser.name %>"
+                    alt="<%= sessionUser.nombre || sessionUser.name %>"
                     onerror="this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'"
                     style="width:32px; height:32px; border-radius:50%; object-fit:cover; border:1px solid var(--accent-gold);"
                 >
-                <span>Hola, <strong style="color:var(--text-main);"><%= sessionUser.name.split(' ')[0] %></strong></span>
+                <span>Hola, <strong style="color:var(--text-main);"><%= (sessionUser.nombre || sessionUser.name || '').split(' ')[0] %></strong></span>
             </a>
             <form action="/users/logout" method="POST" style="margin:0;">
                 <button type="submit" style="background:transparent; border:1px solid var(--border-color); color:var(--text-muted); padding:8px 14px; border-radius:6px; font-size:13px; cursor:pointer; transition:border-color 0.2s;">
