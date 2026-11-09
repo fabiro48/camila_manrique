@@ -1,16 +1,41 @@
 <header>
-        <div class="nav-left">
-            <div class="logo-container">
+    <div class="nav-left">
+        <div class="logo-container">
+            <a href="/" style="display:flex; align-items:center; gap:10px; text-decoration:none; color:inherit;">
                 <img src="https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=100&q=80" alt="Logo Camila Manrique">
                 <span>CAMILA MANRIQUE</span>
-            </div>
-            <nav>
-                <ul>
-                    <li><a href="#">Colección</a></li>
-                    <li><a href="#">Nosotros</a></li>
-                    <li><a href="#">Contacto</a></li>
-                </ul>
-            </nav>
+            </a>
         </div>
-        <a href="/productos/nuevo" class="btn-agendar">Ver Catálogo</a>
-    </header>
+        <nav>
+            <ul>
+                <li><a href="/products">Colección</a></li>
+                <li><a href="#">Nosotros</a></li>
+                <li><a href="#">Contacto</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:12px;">
+        <% if (locals.sessionUser) { %>
+            <!-- Usuario logueado -->
+            <a href="/users/profile" style="display:flex; align-items:center; gap:8px; text-decoration:none; color:var(--text-muted); font-size:13px;">
+                <img
+                    src="/uploads/<%= sessionUser.image %>"
+                    alt="<%= sessionUser.name %>"
+                    onerror="this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'"
+                    style="width:32px; height:32px; border-radius:50%; object-fit:cover; border:1px solid var(--accent-gold);"
+                >
+                <span>Hola, <strong style="color:var(--text-main);"><%= sessionUser.name.split(' ')[0] %></strong></span>
+            </a>
+            <form action="/users/logout" method="POST" style="margin:0;">
+                <button type="submit" style="background:transparent; border:1px solid var(--border-color); color:var(--text-muted); padding:8px 14px; border-radius:6px; font-size:13px; cursor:pointer; transition:border-color 0.2s;">
+                    Salir
+                </button>
+            </form>
+        <% } else { %>
+            <!-- Invitado -->
+            <a href="/users/login" style="color:var(--text-muted); text-decoration:none; font-size:14px;">Iniciar sesión</a>
+            <a href="/users/register" class="btn-agendar">Registrarse</a>
+        <% } %>
+    </div>
+</header>
