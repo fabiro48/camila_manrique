@@ -5,6 +5,25 @@
     "email": "fabiro48@gmail.com",
     "password": "$2b$10$F41ityQUefrMKcnL6Buw6uWHpofm8GVPa8eaGq/7cJpPTz2tbeTl2",
     "image": "1794232916525-650629709.jpg",
+    "role": "user",
     "createdAt": "2026-11-09T14:01:56.603Z"
+  },
+  {
+    "id": 2,
+    "name": "fabian abreo",
+    "email": "abreo003@gmail.com",
+    "password": "$2b$10$XbImdL1gBAloHbMN0IhRauLfSIY59P1tEluJYG43UJ52hiz/iIgOG",
+    "image": "1794260106064-948073863.jpg",
+    "role": "user",
+    "createdAt": "2026-11-09T21:35:06.194Z"
+  },
+  {
+    "id": 3,
+    "name": "Administrador",
+    "email": "admin@camilamanrique.com",
+    "password": "$2b$10$NawxZs0i2GcigDoUVMTuaeKxRXgmQt2gV9vLF51WhcIi92u6Plbnu",
+    "image": "default-avatar.png",
+    "role": "admin",
+    "createdAt": "2026-11-09T00:00:00.000Z"
   }
 ]

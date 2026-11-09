@@ -4,6 +4,7 @@ const multer          = require('multer');
 const path            = require('path');
 const usersController = require('../controllers/usersController');
 const { guestOnly, authRequired } = require('../middlewares/authMiddleware');
+const { registerValidations, loginValidations } = require('../middlewares/validations/userValidations');
 
 // ─── Configuración de Multer ──────────────────────────────────────────────────
 
@@ -37,13 +38,13 @@ const upload = multer({
 router.get('/register',  guestOnly, usersController.register);
 
 // POST /users/register  — solo invitados, con subida de imagen
-router.post('/register', guestOnly, upload.single('image'), usersController.store);
+router.post('/register', guestOnly, upload.single('image'), registerValidations, usersController.store);
 
 // GET  /users/login     — solo invitados
 router.get('/login',     guestOnly, usersController.login);
 
 // POST /users/login     — solo invitados
-router.post('/login',    guestOnly, usersController.authenticate);
+router.post('/login',    guestOnly, loginValidations, usersController.authenticate);
 
 // GET  /users/profile   — solo autenticados
 router.get('/profile',   authRequired, usersController.profile);

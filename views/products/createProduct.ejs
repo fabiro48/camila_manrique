@@ -8,44 +8,60 @@
             <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 8px; color: var(--text-main);">Agregar Bolso / Producto</h2>
             <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 30px;">Agrega un nuevo bolso o accesorio al catálogo de Camila Manrique.</p>
 
-            <form action="/products" method="POST">
+            <% if (typeof errors !== 'undefined' && errors && errors.length > 0) { %>
+                <div style="background: rgba(225,29,72,0.1); border: 1px solid #e11d48; border-radius: 8px; padding: 12px 16px; margin-bottom: 20px;">
+                    <% errors.forEach(err => { %>
+                        <p style="color: #e11d48; font-size: 13px; margin: 2px 0;">⚠ <%= typeof err === 'object' ? err.msg : err %></p>
+                    <% }) %>
+                </div>
+            <% } %>
+
+            <%
+                const cats = typeof categories !== 'undefined' && categories
+                    ? categories
+                    : ['Tote', 'Bandolera', 'Morral', 'Mini Bag', 'Cartera', 'Clutch', 'Otro'];
+            %>
+
+            <form id="productForm" action="/products" method="POST">
                 <div class="form-group">
                     <label for="name">Nombre del bolso / accesorio</label>
-                    <input type="text" id="name" name="name" placeholder="Ej: Bolso Clásico de Cuero Camel" maxlength="100" required>
+                    <input type="text" id="name" name="name" placeholder="Ej: Bolso Clásico de Cuero Camel" maxlength="100" value="<%= typeof oldData !== 'undefined' && oldData ? oldData.name : '' %>" required>
+                    <div class="error-msg" style="color: #e11d48; font-size: 12px; margin-top: 4px;"></div>
                 </div>
 
                 <div class="form-group">
                     <label for="description">Descripción</label>
-                    <input type="text" id="description" name="description" placeholder="Ej: Cuero genuino, cierre dorado, correa ajustable" maxlength="255" required>
+                    <input type="text" id="description" name="description" placeholder="Ej: Cuero genuino, cierre dorado, correa ajustable" maxlength="255" value="<%= typeof oldData !== 'undefined' && oldData ? oldData.description : '' %>" required>
+                    <div class="error-msg" style="color: #e11d48; font-size: 12px; margin-top: 4px;"></div>
                 </div>
 
                 <div class="form-group">
                     <label for="price">Precio (COP)</label>
-                    <input type="number" id="price" name="price" placeholder="Ej: 180000" min="0.01" max="9999999" step="0.01" required>
+                    <input type="number" id="price" name="price" placeholder="Ej: 180000" min="0.01" max="9999999" step="0.01" value="<%= typeof oldData !== 'undefined' && oldData ? oldData.price : '' %>" required>
+                    <div class="error-msg" style="color: #e11d48; font-size: 12px; margin-top: 4px;"></div>
                 </div>
 
                 <div class="form-group">
                     <label for="category">Categoría</label>
                     <select id="category" name="category" required style="width:100%; padding:10px; background:var(--bg-color); border:1px solid var(--border-color); border-radius:6px; color:#fff; font-size:13px;">
-                        <option value="" disabled selected>Selecciona una categoría</option>
-                        <option value="Tote">Tote</option>
-                        <option value="Bandolera">Bandolera</option>
-                        <option value="Morral">Morral</option>
-                        <option value="Mini Bag">Mini Bag</option>
-                        <option value="Cartera">Cartera</option>
-                        <option value="Clutch">Clutch</option>
-                        <option value="Otro">Otro</option>
+                        <option value="" disabled <%= typeof oldData === 'undefined' || !oldData || !oldData.category ? 'selected' : '' %>>Selecciona una categoría</option>
+                        <% cats.forEach(cat => { %>
+                            <option value="<%= cat %>" <%= typeof oldData !== 'undefined' && oldData && oldData.category === cat ? 'selected' : '' %>><%= cat %></option>
+                        <% }) %>
                     </select>
+                    <div class="error-msg" style="color: #e11d48; font-size: 12px; margin-top: 4px;"></div>
                 </div>
 
                 <div class="form-group">
                     <label for="image">URL de imagen</label>
-                    <input type="url" id="image" name="image" placeholder="https://..." maxlength="500">
+                    <input type="url" id="image" name="image" placeholder="https://..." maxlength="500" value="<%= typeof oldData !== 'undefined' && oldData ? oldData.image : '' %>">
+                    <div class="error-msg" style="color: #e11d48; font-size: 12px; margin-top: 4px;"></div>
                 </div>
 
                 <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
-                    <input type="checkbox" id="inOffer" name="inOffer" value="on" style="width:auto; cursor:pointer;">
+                    <input type="checkbox" id="inOffer" name="inOffer" value="on" style="width:auto; cursor:pointer;" <%= typeof oldData !== 'undefined' && oldData && oldData.inOffer ? 'checked' : '' %>>
                     <label for="inOffer" style="margin-bottom: 0; cursor: pointer;">¿Está en oferta?</label>
+                    <div class="error-msg" style="color: #e11d48; font-size: 12px; margin-top: 4px;"></div>
                 </div>
 
                 <div style="display: flex; gap: 12px; margin-top: 24px;">
@@ -57,5 +73,6 @@
     </main>
 
     <%- include('../partials/footer') %>
+    <script src="/js/validations.js"></script>
 </body>
 </html>

@@ -1,8 +1,12 @@
 const fs   = require('fs');
 const path = require('path');
+const { validationResult } = require('express-validator');
 
 // Ruta absoluta al archivo JSON
 const DB_PATH = path.join(__dirname, '../data/productsDataBase.json');
+
+// Categorías disponibles para los formularios de producto
+const categories = ['Tote', 'Bandolera', 'Morral', 'Mini Bag', 'Cartera', 'Clutch', 'Otro'];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -22,7 +26,7 @@ function writeDB(products) {
 const productsController = {
 
     /** GET /products — Lista todos los productos */
-    index(_req, res) {
+    index(req, res) {
         const products = readDB();
         res.render('products/index', { products });
     },
@@ -34,6 +38,17 @@ const productsController = {
 
     /** POST /products — Guarda un nuevo producto */
     store(req, res) {
+        // Capturar errores de validación de express-validator
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            return res.render('products/createProduct', {
+                errors: errors.array(),
+                oldData: req.body,
+                categories
+            });
+        }
+
         const products = readDB();
 
         // Genera un ID único (mayor existente + 1)
@@ -63,7 +78,7 @@ const productsController = {
         const product  = products.find(p => p.id === parseInt(req.params.id));
 
         if (!product) {
-            return res.status(404).render('main/index'); // fallback al home
+            return res.status(404).render('main/index');
         }
 
         res.render('products/detail', { product });
@@ -83,11 +98,23 @@ const productsController = {
 
     /** PUT /products/:id — Actualiza un producto */
     update(req, res) {
+        // Capturar errores de validación de express-validator
+        const errors = validationResult(req);
+
         const products = readDB();
         const index    = products.findIndex(p => p.id === parseInt(req.params.id));
 
         if (index === -1) {
             return res.redirect('/products');
+        }
+
+        if (!errors.isEmpty()) {
+            return res.render('products/editProduct', {
+                errors: errors.array(),
+                oldData: req.body,
+                product: products[index],
+                categories
+            });
         }
 
         products[index] = {

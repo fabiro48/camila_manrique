@@ -1,6 +1,5 @@
-const fs      = require('fs');
-const path    = require('path');
-const bcrypt  = require('bcryptjs');
+const fs     = require('fs');
+const path   = require('path');
 
 const USERS_PATH = path.join(__dirname, '../data/users.json');
 
@@ -32,6 +31,21 @@ function authRequired(req, res, next) {
 }
 
 /**
+ * adminRequired — Solo administradores pueden pasar.
+ * Si no hay sesión → redirige al login.
+ * Si hay sesión pero no es admin → 403.
+ */
+function adminRequired(req, res, next) {
+    if (!req.session || !req.session.user) {
+        return res.redirect('/users/login');
+    }
+    if (req.session.user.role !== 'admin') {
+        return res.status(403).send('<h1>403 — Acceso denegado</h1><p>Solo los administradores pueden realizar esta acción.</p><a href="/products">← Volver al catálogo</a>');
+    }
+    next();
+}
+
+/**
  * rememberMe — Middleware global que auto-loguea al usuario
  * si existe la cookie "rememberUser" y no hay sesión activa.
  */
@@ -49,14 +63,15 @@ function rememberMe(req, res, next) {
     const user  = users.find(u => u.email === rememberedEmail);
     if (user) {
         req.session.user = {
-            id:       user.id,
-            name:     user.name,
-            email:    user.email,
-            image:    user.image
+            id:    user.id,
+            name:  user.name,
+            email: user.email,
+            image: user.image,
+            role:  user.role || 'user'
         };
     }
 
     next();
 }
 
-module.exports = { guestOnly, authRequired, rememberMe };
+module.exports = { guestOnly, authRequired, adminRequired, rememberMe };

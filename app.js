@@ -20,7 +20,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // ─── Sesiones ─────────────────────────────────────────────────────────────────
 app.use(session({
     secret:            'camila_manrique_secret_2026',
-    resave:            false,
+    resave:            true,
     saveUninitialized: false,
     cookie: { maxAge: 24 * 60 * 60 * 1000 } // 1 día
 }));
@@ -30,7 +30,15 @@ app.use(rememberMe);
 
 // ─── Variables locales globales (accesibles en todas las vistas) ──────────────
 app.use((req, res, next) => {
-    res.locals.sessionUser = req.session.user || null;
+    res.locals.isLogged    = false;
+    res.locals.user        = null;
+    res.locals.sessionUser = null;
+
+    if (req.session && req.session.user) {
+        res.locals.isLogged    = true;
+        res.locals.user        = req.session.user;
+        res.locals.sessionUser = req.session.user;
+    }
     next();
 });
 

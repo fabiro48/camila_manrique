@@ -1,6 +1,7 @@
 const fs     = require('fs');
 const path   = require('path');
 const bcrypt = require('bcryptjs');
+const { validationResult } = require('express-validator');
 
 const USERS_PATH = path.join(__dirname, '../data/users.json');
 
@@ -26,24 +27,34 @@ const usersController = {
 
     // POST /users/register
     async store(req, res) {
-        const { name, email, password, confirmPassword } = req.body;
-        const errors = [];
+        // Capturar errores de validación de express-validator
+        const errors = validationResult(req);
 
-        if (!name || name.trim().length < 2)
-            errors.push('El nombre debe tener al menos 2 caracteres.');
+        if (!errors.isEmpty()) {
+            return res.render('users/register', {
+                errors: errors.array(),
+                oldData: req.body
+            });
+        }
+
+        const { nombre, apellido, email, password, confirmPassword } = req.body;
+        const localErrors = [];
+
+        if (!nombre || nombre.trim().length < 2)
+            localErrors.push('El nombre debe tener al menos 2 caracteres.');
         if (!email || !email.includes('@'))
-            errors.push('El correo electrónico no es válido.');
+            localErrors.push('El correo electrónico no es válido.');
         if (!password || password.length < 6)
-            errors.push('La contraseña debe tener al menos 6 caracteres.');
+            localErrors.push('La contraseña debe tener al menos 6 caracteres.');
         if (password !== confirmPassword)
-            errors.push('Las contraseñas no coinciden.');
+            localErrors.push('Las contraseñas no coinciden.');
 
         const users       = readUsers();
         const emailExists = users.find(u => u.email === email);
-        if (emailExists) errors.push('Ya existe una cuenta con ese correo.');
+        if (emailExists) localErrors.push('Ya existe una cuenta con ese correo.');
 
-        if (errors.length > 0) {
-            return res.render('users/register', { errors });
+        if (localErrors.length > 0) {
+            return res.render('users/register', { errors: localErrors });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -54,26 +65,31 @@ const usersController = {
         const imageFile = req.file ? req.file.filename : 'default-avatar.png';
 
         const newUser = {
-            id:       newId,
-            name:     name.trim(),
-            email:    email.trim().toLowerCase(),
-            password: hashedPassword,
-            image:    imageFile,
+            id:        newId,
+            name:      (nombre.trim() + ' ' + (apellido ? apellido.trim() : '')).trim(),
+            email:     email.trim().toLowerCase(),
+            password:  hashedPassword,
+            image:     imageFile,
+            role:      'user',   // los usuarios del formulario público NUNCA son admin
             createdAt: new Date().toISOString()
         };
 
         users.push(newUser);
         writeUsers(users);
 
-        // Auto-login tras registro
         req.session.user = {
             id:    newUser.id,
             name:  newUser.name,
             email: newUser.email,
-            image: newUser.image
+            image: newUser.image,
+            role:  newUser.role
         };
 
-        res.redirect('/users/profile');
+        // Forzar guardado de sesión antes del redirect
+        req.session.save((err) => {
+            if (err) console.error('Error guardando sesión:', err);
+            res.redirect('/users/profile');
+        });
     },
 
     // GET /users/login
@@ -83,6 +99,15 @@ const usersController = {
 
     // POST /users/login
     async authenticate(req, res) {
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            return res.render('users/login', {
+                errors: errors.array(),
+                oldData: req.body
+            });
+        }
+
         const { email, password, rememberMe } = req.body;
 
         const users = readUsers();
@@ -97,23 +122,32 @@ const usersController = {
             return res.render('users/login', { error: 'Correo o contraseña incorrectos.' });
         }
 
-        // Guardar en sesión
+        // Guardar en sesión (incluye role)
         req.session.user = {
             id:    user.id,
             name:  user.name,
             email: user.email,
-            image: user.image
+            image: user.image,
+            role:  user.role || 'user'
         };
 
-        // Cookie "Recordar usuario" — 7 días
-        if (rememberMe === 'on') {
-            res.cookie('rememberUser', user.email, {
-                maxAge:   7 * 24 * 60 * 60 * 1000,
-                httpOnly: true
-            });
-        }
+        // Forzar guardado de sesión antes del redirect (necesario en Express 5)
+        req.session.save((err) => {
+            if (err) {
+                console.error('Error guardando sesión:', err);
+                return res.render('users/login', { error: 'Error interno. Intenta de nuevo.' });
+            }
 
-        res.redirect('/users/profile');
+            // Cookie "Recordar usuario" — 7 días
+            if (rememberMe === 'on') {
+                res.cookie('rememberUser', user.email, {
+                    maxAge:   7 * 24 * 60 * 60 * 1000,
+                    httpOnly: true
+                });
+            }
+
+            res.redirect('/users/profile');
+        });
     },
 
     // GET /users/profile
@@ -125,7 +159,8 @@ const usersController = {
     logout(req, res) {
         req.session.destroy(() => {
             res.clearCookie('rememberUser');
-            res.redirect('/users/login');
+            res.clearCookie('connect.sid'); // cookie de la sesión de express-session
+            res.redirect('/');
         });
     }
 };
