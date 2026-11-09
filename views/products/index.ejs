@@ -16,17 +16,17 @@
             <div class="services-grid">
                 <% products.forEach(product => { %>
                     <div class="service-card">
-                        <img src="<%= product.image %>" alt="<%= product.name %>">
+                        <img src="<%= product.imagen || '' %>" alt="<%= product.nombre %>">
                         <div class="service-card-content" style="flex-direction: column; align-items: flex-start; gap: 10px;">
                             <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
-                                <h4><%= product.name %></h4>
+                                <h4><%= product.nombre %></h4>
                                 <% if (product.inOffer) { %>
                                     <span style="background: #e11d48; color: #fff; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: bold;">OFERTA</span>
                                 <% } %>
                             </div>
-                            <span class="price-tag">$<%= product.price.toLocaleString('es-CO') %></span>
+                            <span class="price-tag">$<%= parseFloat(product.precio).toLocaleString('es-CO') %></span>
                             <p style="font-size: 12px; color: var(--text-muted); line-height: 1.4;">
-                                <%= product.description.substring(0, 80) %>...
+                                <%= product.descripcion ? product.descripcion.substring(0, 80) + '...' : '' %>
                             </p>
                             <div style="display: flex; gap: 8px; width: 100%; margin-top: 6px;">
                                 <a href="/products/<%= product.id %>" style="flex:1; text-align:center; padding: 7px; border-radius: 6px; border: 1px solid var(--border-color); color: var(--text-muted); text-decoration: none; font-size: 12px;">Ver</a>

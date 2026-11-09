@@ -1,13 +1,5 @@
-const fs      = require('fs');
-const path    = require('path');
-const bcrypt  = require('bcryptjs');
-
-const USERS_PATH = path.join(__dirname, '../data/users.json');
-
-function readUsers() {
-    const raw = fs.readFileSync(USERS_PATH, 'utf-8');
-    return JSON.parse(raw);
-}
+'use strict';
+const { User } = require('../database/models');
 
 /**
  * guestOnly — Solo invitados pueden pasar (login / registro).
@@ -35,7 +27,7 @@ function authRequired(req, res, next) {
  * rememberMe — Middleware global que auto-loguea al usuario
  * si existe la cookie "rememberUser" y no hay sesión activa.
  */
-function rememberMe(req, res, next) {
+async function rememberMe(req, res, next) {
     if (req.session && req.session.user) {
         return next(); // ya está logueado
     }
@@ -45,15 +37,18 @@ function rememberMe(req, res, next) {
         return next();
     }
 
-    const users = readUsers();
-    const user  = users.find(u => u.email === rememberedEmail);
-    if (user) {
-        req.session.user = {
-            id:       user.id,
-            name:     user.name,
-            email:    user.email,
-            image:    user.image
-        };
+    try {
+        const user = await User.findOne({ where: { email: rememberedEmail } });
+        if (user) {
+            req.session.user = {
+                id:     user.id,
+                nombre: user.nombre,
+                email:  user.email,
+                image:  user.imagen
+            };
+        }
+    } catch (err) {
+        console.error('Error en rememberMe middleware:', err);
     }
 
     next();

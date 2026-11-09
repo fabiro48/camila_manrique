@@ -10,37 +10,38 @@
 
             <form action="/products" method="POST">
                 <div class="form-group">
-                    <label for="name">Nombre del bolso / accesorio</label>
-                    <input type="text" id="name" name="name" placeholder="Ej: Bolso Clásico de Cuero Camel" maxlength="100" required>
+                    <label for="nombre">Nombre del bolso / accesorio</label>
+                    <input type="text" id="nombre" name="nombre" placeholder="Ej: Bolso Clásico de Cuero Camel" maxlength="100" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="description">Descripción</label>
-                    <input type="text" id="description" name="description" placeholder="Ej: Cuero genuino, cierre dorado, correa ajustable" maxlength="255" required>
+                    <label for="descripcion">Descripción</label>
+                    <input type="text" id="descripcion" name="descripcion" placeholder="Ej: Cuero genuino, cierre dorado, correa ajustable" maxlength="255" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="price">Precio (COP)</label>
-                    <input type="number" id="price" name="price" placeholder="Ej: 180000" min="0.01" max="9999999" step="0.01" required>
+                    <label for="precio">Precio (COP)</label>
+                    <input type="number" id="precio" name="precio" placeholder="Ej: 180000" min="0.01" max="9999999" step="0.01" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="category">Categoría</label>
-                    <select id="category" name="category" required style="width:100%; padding:10px; background:var(--bg-color); border:1px solid var(--border-color); border-radius:6px; color:#fff; font-size:13px;">
+                    <label for="categoryId">Categoría</label>
+                    <select id="categoryId" name="categoryId" required style="width:100%; padding:10px; background:var(--bg-color); border:1px solid var(--border-color); border-radius:6px; color:#fff; font-size:13px;">
                         <option value="" disabled selected>Selecciona una categoría</option>
-                        <option value="Tote">Tote</option>
-                        <option value="Bandolera">Bandolera</option>
-                        <option value="Morral">Morral</option>
-                        <option value="Mini Bag">Mini Bag</option>
-                        <option value="Cartera">Cartera</option>
-                        <option value="Clutch">Clutch</option>
-                        <option value="Otro">Otro</option>
+                        <% categories.forEach(cat => { %>
+                            <option value="<%= cat.id %>"><%= cat.nombre %></option>
+                        <% }) %>
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label for="image">URL de imagen</label>
-                    <input type="url" id="image" name="image" placeholder="https://..." maxlength="500">
+                    <label for="imagen">URL de imagen</label>
+                    <input type="url" id="imagen" name="imagen" placeholder="https://..." maxlength="500">
+                </div>
+
+                <div class="form-group">
+                    <label for="stock">Stock</label>
+                    <input type="number" id="stock" name="stock" placeholder="Ej: 10" min="0" value="0">
                 </div>
 
                 <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
