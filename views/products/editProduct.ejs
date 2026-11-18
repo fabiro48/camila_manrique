@@ -5,38 +5,61 @@
     <main style="max-width: 600px; margin: 80px auto; padding: 0 20px;">
         <div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 40px;">
             <a href="/products" style="color: var(--text-muted); text-decoration: none; font-size: 13px; display: inline-block; margin-bottom: 20px;">← Volver al catálogo</a>
-            <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 8px; color: var(--text-main);">Editar Bolso / Producto</h2>
-            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 30px;">Modifica los datos del bolso o accesorio en el catálogo.</p>
+            <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 8px;">Editar Bolso / Producto</h2>
+            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 30px;">Modifica los datos del bolso o accesorio.</p>
 
-            <form action="/products/<%= product.id %>?_method=PUT" method="POST">
+            <% if (errors && errors.length > 0) { %>
+                <div style="background:rgba(225,29,72,0.1); border:1px solid #e11d48; border-radius:8px; padding:12px 16px; margin-bottom:20px;">
+                    <% errors.forEach(err => { %>
+                        <p style="color:#e11d48; font-size:13px; margin:2px 0;">⚠ <%= err %></p>
+                    <% }) %>
+                </div>
+            <% } %>
+
+            <form id="editForm" action="/products/<%= product.id %>?_method=PUT" method="POST" enctype="multipart/form-data" novalidate>
                 <div class="form-group">
                     <label for="nombre">Nombre del bolso / accesorio</label>
-                    <input type="text" id="nombre" name="nombre" value="<%= product.nombre %>" maxlength="100" required>
+                    <input type="text" id="nombre" name="nombre" value="<%= product.nombre %>" maxlength="100">
+                    <span class="field-error" id="err-nombre"></span>
                 </div>
 
                 <div class="form-group">
                     <label for="descripcion">Descripción</label>
-                    <input type="text" id="descripcion" name="descripcion" value="<%= product.descripcion || '' %>" maxlength="255" required>
+                    <input type="text" id="descripcion" name="descripcion" value="<%= product.descripcion || '' %>" maxlength="500">
+                    <span class="field-error" id="err-descripcion"></span>
                 </div>
 
                 <div class="form-group">
                     <label for="precio">Precio (COP)</label>
-                    <input type="number" id="precio" name="precio" value="<%= product.precio %>" min="0.01" max="9999999" step="0.01" required>
+                    <input type="number" id="precio" name="precio" value="<%= product.precio %>" min="0.01" max="9999999" step="0.01">
+                    <span class="field-error" id="err-precio"></span>
                 </div>
 
                 <div class="form-group">
                     <label for="categoryId">Categoría</label>
-                    <select id="categoryId" name="categoryId" required style="width:100%; padding:10px; background:var(--bg-color); border:1px solid var(--border-color); border-radius:6px; color:#fff; font-size:13px;">
+                    <select id="categoryId" name="categoryId" style="width:100%; padding:10px; background:var(--bg-color); border:1px solid var(--border-color); border-radius:6px; color:#fff; font-size:13px;">
                         <option value="" disabled>Selecciona una categoría</option>
                         <% categories.forEach(cat => { %>
                             <option value="<%= cat.id %>" <%= product.categoryId === cat.id ? 'selected' : '' %>><%= cat.nombre %></option>
                         <% }) %>
                     </select>
+                    <span class="field-error" id="err-categoryId"></span>
                 </div>
 
+                <% if (product.imagen) { %>
+                    <div style="margin-bottom:12px;">
+                        <p style="font-size:12px; color:var(--text-muted); margin-bottom:6px;">Imagen actual:</p>
+                        <img src="<%= product.imagen %>" alt="Imagen actual"
+                            style="height:80px; border-radius:6px; border:1px solid var(--border-color);"
+                            onerror="this.style.display='none'">
+                    </div>
+                <% } %>
+
                 <div class="form-group">
-                    <label for="imagen">URL de imagen</label>
-                    <input type="url" id="imagen" name="imagen" value="<%= product.imagen || '' %>" maxlength="500">
+                    <label for="imagen">Nueva imagen (opcional · JPG, PNG o WEBP · máx 2MB)</label>
+                    <input type="file" id="imagen" name="imagen" accept="image/jpeg,image/png,image/webp"
+                        style="padding:8px; background:var(--bg-color); border:1px solid var(--border-color); border-radius:6px; color:var(--text-muted); font-size:13px; width:100%;">
+                    <span class="field-error" id="err-imagen"></span>
                 </div>
 
                 <div class="form-group">
@@ -46,7 +69,7 @@
 
                 <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
                     <input type="checkbox" id="inOffer" name="inOffer" value="on" <%= product.inOffer ? 'checked' : '' %> style="width:auto; cursor:pointer;">
-                    <label for="inOffer" style="margin-bottom: 0; cursor: pointer;">¿Está en oferta?</label>
+                    <label for="inOffer" style="margin-bottom:0; cursor:pointer;">¿Está en oferta?</label>
                 </div>
 
                 <div style="display: flex; gap: 12px; margin-top: 24px;">
@@ -56,6 +79,35 @@
             </form>
         </div>
     </main>
+
+    <style>
+        .field-error { color: #e11d48; font-size: 11px; display: block; margin-top: 4px; min-height: 14px; }
+    </style>
+
+    <script>
+        document.getElementById('editForm').addEventListener('submit', function(e) {
+            let valid = true;
+            document.querySelectorAll('.field-error').forEach(el => { el.textContent = ''; });
+            const setError = (id, msg) => { document.getElementById(id).textContent = msg; valid = false; };
+
+            const nombre = document.getElementById('nombre').value.trim();
+            if (!nombre || nombre.length < 2) setError('err-nombre', 'El nombre debe tener al menos 2 caracteres.');
+
+            const descripcion = document.getElementById('descripcion').value.trim();
+            if (!descripcion) setError('err-descripcion', 'La descripción es obligatoria.');
+
+            const precio = parseFloat(document.getElementById('precio').value);
+            if (!precio || precio <= 0) setError('err-precio', 'El precio debe ser mayor a 0.');
+
+            const catId = document.getElementById('categoryId').value;
+            if (!catId) setError('err-categoryId', 'Debes seleccionar una categoría.');
+
+            const imagenFile = document.getElementById('imagen').files[0];
+            if (imagenFile && imagenFile.size > 2 * 1024 * 1024) setError('err-imagen', 'La imagen no puede superar 2MB.');
+
+            if (!valid) e.preventDefault();
+        });
+    </script>
 
     <%- include('../partials/footer') %>
 </body>

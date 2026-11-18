@@ -1,0 +1,65 @@
+<%- include('../partials/head') %>
+<body>
+    <%- include('../partials/header') %>
+
+    <main style="max-width: 800px; margin: 60px auto; padding: 0 20px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
+            <h2 style="font-size: 28px; font-weight: 700;">📦 Mis Pedidos</h2>
+            <a href="/products" class="btn-agendar">Ver colección</a>
+        </div>
+
+        <% if (orders.length === 0) { %>
+            <div style="text-align: center; padding: 80px 0; color: var(--text-muted);">
+                <p style="font-size: 48px; margin-bottom: 20px;">📭</p>
+                <p style="font-size: 16px;">Aún no has realizado ningún pedido.</p>
+            </div>
+        <% } else { %>
+            <% orders.forEach(order => { %>
+                <div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; margin-bottom: 20px; overflow: hidden;">
+                    <div style="padding: 16px 24px; border-bottom: 1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <span style="font-size: 13px; color: var(--text-muted);">Pedido #<%= order.id %></span>
+                            <span style="margin-left: 16px; font-size: 12px; color: var(--text-muted);">
+                                <%= new Date(order.createdAt).toLocaleDateString('es-CO', { year:'numeric', month:'long', day:'numeric' }) %>
+                            </span>
+                        </div>
+                        <%
+                            const estadoColors = {
+                                pendiente:  { bg: '#fef3c7', color: '#92400e' },
+                                confirmado: { bg: '#d1fae5', color: '#065f46' },
+                                enviado:    { bg: '#dbeafe', color: '#1e40af' },
+                                entregado:  { bg: '#f3f4f6', color: '#374151' },
+                                cancelado:  { bg: '#fee2e2', color: '#991b1b' }
+                            };
+                            const ec = estadoColors[order.estado] || { bg: '#e5e7eb', color: '#374151' };
+                        %>
+                        <span style="background:<%= ec.bg %>; color:<%= ec.color %>; padding:4px 12px; border-radius:20px; font-size:11px; font-weight:700; text-transform:uppercase;">
+                            <%= order.estado %>
+                        </span>
+                    </div>
+                    <div style="padding: 16px 24px;">
+                        <% order.items.forEach(item => { %>
+                            <div style="display:flex; justify-content:space-between; align-items:center; padding: 8px 0; border-bottom:1px solid var(--border-color);">
+                                <span style="font-size:13px; color:var(--text-main);">
+                                    <%= item.product ? item.product.nombre : 'Producto eliminado' %>
+                                    <span style="color:var(--text-muted); margin-left:8px;">× <%= item.cantidad %></span>
+                                </span>
+                                <span style="font-size:13px; color:var(--accent-gold); font-weight:600;">
+                                    $<%= (parseFloat(item.precioUnitario) * item.cantidad).toLocaleString('es-CO') %>
+                                </span>
+                            </div>
+                        <% }) %>
+                        <div style="display:flex; justify-content:flex-end; margin-top:12px;">
+                            <span style="font-size:15px; font-weight:800; color:var(--accent-gold);">
+                                Total: $<%= parseFloat(order.total).toLocaleString('es-CO') %>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            <% }) %>
+        <% } %>
+    </main>
+
+    <%- include('../partials/footer') %>
+</body>
+</html>

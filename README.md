@@ -1,136 +1,161 @@
 # Camila Manrique — Marroquinería & Bolsos Exclusivos
 
-> 📋 **Tablero de gestión del proyecto:**
-> ### 👉 [https://github.com/users/fabiro48/projects/1](https://github.com/users/fabiro48/projects/1)
+> 📋 **Tablero de gestión del proyecto:** [https://github.com/users/fabiro48/projects/1](https://github.com/users/fabiro48/projects/1)
+
+Aplicación web e-commerce para la tienda de marroquinería artesanal "Camila Manrique", ubicada en el Centro Comercial San Gil Plaza, Santander, Colombia.
 
 ---
 
-Aplicación web e-commerce desarrollada con **Node.js**, **Express** y **EJS** para la tienda de marroquinería artesanal "Camila Manrique", ubicada en el Centro Comercial San Gil Plaza, Santander — Colombia.
+## Arquitectura
 
----
+Aplicación monolítica con renderizado en el servidor (SSR) y patrón MVC.
 
-## Tecnologías utilizadas
-
-- [Node.js](https://nodejs.org/)
-- [Express](https://expressjs.com/) v5
-- [EJS](https://ejs.co/) — Motor de plantillas
-- [method-override](https://github.com/expressjs/method-override) — Soporte para PUT y DELETE desde formularios HTML
+| Capa | Tecnología |
+|------|-----------|
+| Servidor | Node.js + Express 5 |
+| Vistas | EJS |
+| ORM | Sequelize 6 |
+| Base de datos | MySQL 8 (Docker Compose) |
+| Autenticación | `express-session`, cookie "recordar usuario", `bcryptjs` |
+| Validaciones | `express-validator` (backend) + JavaScript en formularios (frontend) |
+| Subida de archivos | Multer (JPG/PNG/WEBP, máx. 2 MB) |
+| Pruebas | Jest + fast-check |
 
 ---
 
 ## Estructura del proyecto
 
 ```
-├── app.js                        # Servidor principal
-├── package.json
-├── README.md
-│
+├── app.js                         # Servidor principal
+├── docker-compose.yml             # MySQL 8
+├── .sequelizerc                   # Rutas de sequelize-cli
 ├── controllers/
-│   └── productsController.js     # Lógica CRUD de productos
-│
+│   ├── productsController.js      # CRUD de productos
+│   ├── usersController.js         # Registro, login, perfil
+│   └── cartController.js          # Carrito y pedidos
 ├── routes/
-│   └── products.js               # Rutas RESTful de productos
-│
-├── data/
-│   └── productsDataBase.json     # Base de datos en JSON
-│
+│   ├── products.js                # Rutas de productos (escritura solo admin)
+│   ├── users.js                   # Rutas de usuarios
+│   └── cart.js                    # Rutas de carrito y pedidos
+├── middlewares/
+│   ├── authMiddleware.js          # guestOnly, authRequired, rememberMe
+│   └── adminMiddleware.js         # adminOnly
+├── database/
+│   ├── config/config.js
+│   ├── migrations/                # categories, users, products, orders, order-items
+│   ├── models/                    # User, Category, Product, Order, OrderItem
+│   └── seeders/                   # categorías, productos, administrador
 ├── views/
-│   ├── main/
-│   │   └── index.ejs             # Página principal (home)
-│   ├── products/
-│   │   ├── index.ejs             # Lista de productos
-│   │   ├── detail.ejs            # Detalle de producto
-│   │   ├── createProduct.ejs     # Formulario de creación
-│   │   └── editProduct.ejs       # Formulario de edición
-│   └── partials/
-│       ├── head.ejs              # Metadatos y estilos globales
-│       ├── header.ejs            # Barra de navegación
-│       └── footer.ejs            # Pie de página
-│
-├── retro.md                      # Retrospectiva Sprint 3 — Estrella de Mar
-└── daily.md                      # Daily Standups Sprint 3
+│   ├── main/  products/  users/  cart/  errors/  partials/
+├── public/
+│   ├── uploads/                   # Fotos de perfil
+│   └── images/products/           # Imágenes de productos
+├── tests/                         # unit/ e integration/
+├── structure.sql  data.sql        # Respaldo SQL independiente del ORM
+├── daily.md  retro.md             # Documentación ágil
 ```
+
+---
+
+## Modelo de datos
+
+- `Categories` 1—N `Products`
+- `Users` 1—N `Orders`
+- `Orders` 1—N `OrderItems` N—1 `Products`
 
 ---
 
 ## Instalación y uso
 
 ```bash
-# Clonar el repositorio
-git clone https://github.com/fabiro48/camila_manrique.git
-cd camila_manrique
-
-# Instalar dependencias
+# 1. Instalar dependencias
 npm install
 
-# Iniciar el servidor
+# 2. Copiar variables de entorno y ajustarlas
+cp .env.example .env
+
+# 3. Levantar MySQL
+docker compose up -d
+
+# 4. Crear tablas y datos iniciales
+npx sequelize db:migrate
+npx sequelize db:seed:all
+
+# 5. Iniciar el servidor
 npm start
 ```
 
-Luego abre el navegador en: [http://localhost:3000](http://localhost:3000)
+Abrir [http://localhost:3000](http://localhost:3000).
+
+**Usuario administrador (seeder):** `admin@camilamanrique.com` / `Admin2026!`  
+Cambiar esta contraseña antes de cualquier uso fuera del entorno académico.
+
+**Tests:** `npm test` (requiere MySQL activo).
 
 ---
 
-## Rutas disponibles
+## Rutas
 
+### Públicas
 | Método | Ruta | Descripción |
 |--------|------|-------------|
-| GET | `/` | Página principal |
-| GET | `/products` | Lista de todos los productos |
-| GET | `/products/create` | Formulario para crear producto |
-| POST | `/products` | Guarda un nuevo producto |
-| GET | `/products/:id` | Detalle de un producto |
-| GET | `/products/:id/edit` | Formulario para editar producto |
-| PUT | `/products/:id` | Actualiza un producto |
-| DELETE | `/products/:id` | Elimina un producto |
+| GET | `/` | Home con los últimos 3 productos |
+| GET | `/products` | Catálogo (admite `?q=` para buscar) |
+| GET | `/products/:id` | Detalle de producto |
+
+### Invitados
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| GET/POST | `/users/register` | Registro con foto de perfil |
+| GET/POST | `/users/login` | Inicio de sesión |
+
+### Usuarios autenticados
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| GET | `/users/profile` | Perfil |
+| POST | `/users/logout` | Cerrar sesión |
+| GET | `/cart` | Ver carrito |
+| POST | `/cart/add` | Agregar producto |
+| POST | `/cart/remove` | Quitar producto |
+| POST | `/cart/checkout` | Confirmar pedido (se guarda en BD) |
+| GET | `/cart/orders` | Mis pedidos |
+
+### Solo administrador
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| GET | `/products/create` | Formulario de creación |
+| POST | `/products` | Crear producto (con imagen) |
+| GET | `/products/:id/edit` | Formulario de edición |
+| PUT | `/products/:id` | Actualizar producto |
+| DELETE | `/products/:id` | Eliminar producto |
+
+Sin sesión se redirige a `/users/login`. Con sesión de usuario normal se responde 403.
 
 ---
 
-## Sprints del proyecto
+## Sprints
 
-### Sprint 1
-- Planificación del proyecto y definición del stack tecnológico.
-
-### Sprint 2
-- Estructura base de la aplicación en Node.js + Express.
-- Página principal estática en HTML.
-
-### Sprint 3
-- Integración de EJS como motor de plantillas.
-- Creación de componentes reutilizables: `head`, `header` y `footer` (partials).
-- Reorganización de vistas en subcarpetas por dominio (`main/`, `products/`).
-- Documentación ágil: retrospectiva con Estrella de Mar (`retro.md`) y Daily Standups (`daily.md`).
-
-### Sprint 4
-- Arquitectura MVC: controladores y rutas separados.
-- CRUD completo de productos usando `fs` de Node.js y JSON como base de datos.
-- Soporte para métodos PUT y DELETE desde formularios HTML con `method-override`.
-- Vistas: listado, detalle, creación y edición de productos.
-
----
-
-## Ramas del repositorio
-
-| Rama | Contenido |
-|------|-----------|
-| `main` | Versión estable más reciente |
-| `sprint-1` | Planificación inicial |
-| `sprint-2` | Aplicación base HTML |
-| `sprint-3` | Motor EJS y partials |
-| `sprint-4` | CRUD de productos con JSON |
+| Sprint | Contenido |
+|--------|-----------|
+| 1 | Planificación y stack |
+| 2 | Aplicación base HTML |
+| 3 | EJS, partials, vistas por dominio |
+| 4 | CRUD de productos con JSON |
+| 5 | Autenticación y sesiones |
+| 6 | Sequelize + MySQL, Docker, seeders, tests |
+| 7 | Roles (admin), `express-validator`, validaciones frontend, imágenes de producto, carrito y pedidos, home dinámico |
 
 ---
 
 ## Documentación ágil
 
-- [`retro.md`](./retro.md) — Retrospectiva Sprint 3 con la dinámica Estrella de Mar
-- [`daily.md`](./daily.md) — Registro de Daily Standups del Sprint 3
-- 📋 [Tablero de gestión](https://github.com/users/fabiro48/projects/1)
+- [`retro.md`](./retro.md) — Retrospectivas (Sprint 3, 6 y 7)
+- [`daily.md`](./daily.md) — Daily Standups (Sprint 3 y 7)
 
 ---
 
 ## Autor
 
-Proyecto académico desarrollado como parte del curso de Desarrollo Web.  
+Proyecto académico del curso de Desarrollo Web.  
 **Institución:** SENA — San Gil, Santander, Colombia  
 **Año:** 2026

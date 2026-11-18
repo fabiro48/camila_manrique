@@ -126,3 +126,44 @@ La dinámica "Estrella de Mar" nos permite reflexionar sobre el trabajo del equi
 ---
 
 *Retrospectiva facilitada por el equipo al final del Sprint 6 — Migración a Sequelize ORM.*
+
+---
+
+# Retrospectiva Sprint 7 — Estrella de Mar
+
+> **Proyecto:** Camila Manrique — Marroquinería & Bolsos Exclusivos (Node.js + Express + Sequelize + MySQL)  
+> **Sprint:** 7 — Roles, validaciones, carrito y pedidos  
+> **Fecha:** Noviembre 2026  
+> **Equipo:** Equipo de Desarrollo Web
+
+---
+
+## Estrella de Mar
+
+### Start Doing — Empezar a hacer
+- Proteger las rutas sensibles desde el primer sprint en que existan, no al final.
+- Escribir tests para el carrito y el flujo de pedidos.
+- Usar el campo `rol` desde el inicio para diferenciar administradores de clientes.
+
+### More of — Más de esto
+- Validar en dos capas: `express-validator` en el servidor y JavaScript en el navegador.
+- Reutilizar la misma configuración de Multer para usuarios y productos.
+- Probar los flujos completos (login, carrito, checkout) contra la base de datos real.
+
+### Keep Doing — Seguir haciendo
+- Separar rutas, controladores y middlewares por responsabilidad.
+- Mantener migraciones y seeders versionados y en orden de dependencias.
+- Documentar cada sprint en `daily.md` y `retro.md`.
+
+### Less of — Menos de esto
+- Menos estilos inline repetidos en las vistas; falta extraerlos a un CSS propio.
+- Menos datos estáticos en el home; ahora se consultan a la base de datos.
+
+### Stop Doing — Dejar de hacer
+- Dejar de permitir que cualquier visitante cree, edite o elimine productos.
+- Dejar de versionar `node_modules` en Git (revisar `git rm -r --cached node_modules`).
+- Dejar de dejar a los tests de integración llenar la tabla `Users` con datos basura.
+
+---
+
+*Retrospectiva facilitada por el equipo al final del Sprint 7.*

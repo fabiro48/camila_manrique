@@ -2,7 +2,7 @@
 <body>
     <%- include('../partials/header') %>
 
-    <!-- Hero Section -->
+    <!-- Hero -->
     <section class="hero">
         <h1>CAMILA MANRIQUE</h1>
         <h2>Marroquinería & Bolsos Exclusivos</h2>
@@ -11,30 +11,26 @@
     </section>
 
     <!-- Sobre Nosotros -->
-    <div class="about-section">
+    <div class="about-section" id="nosotros">
         <div class="about-images">
             <img src="https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=400&q=80" alt="Bolsos Camila Manrique 1">
             <img src="https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=400&q=80" alt="Bolsos Camila Manrique 2">
         </div>
         <div class="about-text">
             <h3>Sobre Nosotros</h3>
-            <p>Somos una tienda de marroquinería artesanal especializada en bolsos y accesorios exclusivos. Cada pieza es elaborada con materiales de alta calidad, combinando técnicas tradicionales con diseños contemporáneos para que nuestras clientas luzcan siempre elegantes.</p>
+            <p>Somos una tienda de marroquinería artesanal especializada en bolsos y accesorios exclusivos. Cada pieza es elaborada con materiales de alta calidad, combinando técnicas tradicionales con diseños contemporáneos.</p>
             <p>Nuestra pasión es crear bolsos que no solo sean funcionales, sino verdaderas piezas de moda que reflejen la personalidad de quien los lleva.</p>
         </div>
     </div>
 
-    <!-- Horarios de Atención -->
+    <!-- Horarios -->
     <div class="schedule-section">
         <img src="https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=600&q=80" alt="Tienda Camila Manrique">
         <div class="schedule-table-container">
             <h3>HORARIO DE ATENCIÓN</h3>
             <table class="schedule-table">
                 <thead>
-                    <tr>
-                        <th>Día</th>
-                        <th>Apertura</th>
-                        <th>Cierre</th>
-                    </tr>
+                    <tr><th>Día</th><th>Apertura</th><th>Cierre</th></tr>
                 </thead>
                 <tbody>
                     <tr><td>Lunes</td><td>09:00</td><td>19:00</td></tr>
@@ -49,65 +45,53 @@
         </div>
     </div>
 
-    <!-- Catálogo de Productos -->
+    <!-- Colección real desde BD -->
     <section class="services-section">
         <div class="services-container">
             <div class="services-header">
                 <h2>Nuestra Colección</h2>
             </div>
             <div class="services-banner-desc">
-                Descubre nuestra colección de bolsos artesanales, desde clásicos atemporales hasta diseños de vanguardia. Cada pieza cuenta una historia de elegancia y dedicación.
+                Descubre nuestra colección de bolsos artesanales. Cada pieza cuenta una historia de elegancia y dedicación.
             </div>
-            <div class="services-grid">
-                <div class="service-card">
-                    <img src="https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=400&q=80" alt="Bolso Clásico">
-                    <div class="service-card-content">
-                        <h4>Bolso Clásico de Cuero</h4>
-                        <span class="price-tag">$$$</span>
+            <% if (featuredProducts && featuredProducts.length > 0) { %>
+                <div class="services-grid">
+                    <% featuredProducts.forEach(product => { %>
+                        <div class="service-card">
+                            <% if (product.imagen) { %>
+                                <img src="<%= product.imagen %>" alt="<%= product.nombre %>" onerror="this.src='https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=400&q=80'">
+                            <% } else { %>
+                                <img src="https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=400&q=80" alt="<%= product.nombre %>">
+                            <% } %>
+                            <div class="service-card-content" style="flex-direction:column; align-items:flex-start; gap:8px;">
+                                <h4><%= product.nombre %></h4>
+                                <span class="price-tag">$<%= parseFloat(product.precio).toLocaleString('es-CO') %></span>
+                                <a href="/products/<%= product.id %>" style="font-size:12px; color:var(--accent-gold); text-decoration:none; margin-top:4px;">Ver detalle →</a>
+                            </div>
+                        </div>
+                    <% }) %>
+                </div>
+            <% } else { %>
+                <div class="services-grid">
+                    <div class="service-card">
+                        <img src="https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=400&q=80" alt="Bolso Clásico">
+                        <div class="service-card-content"><h4>Bolso Clásico de Cuero</h4><span class="price-tag">$$$</span></div>
+                    </div>
+                    <div class="service-card">
+                        <img src="https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=400&q=80" alt="Cartera Mini">
+                        <div class="service-card-content"><h4>Cartera Mini Artesanal</h4><span class="price-tag">$$</span></div>
+                    </div>
+                    <div class="service-card">
+                        <img src="https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=400&q=80" alt="Tote Bag">
+                        <div class="service-card-content"><h4>Tote Bag Premium</h4><span class="price-tag">$$$$</span></div>
                     </div>
                 </div>
-                <div class="service-card">
-                    <img src="https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=400&q=80" alt="Cartera Mini">
-                    <div class="service-card-content">
-                        <h4>Cartera Mini Artesanal</h4>
-                        <span class="price-tag">$$</span>
-                    </div>
-                </div>
-                <div class="service-card">
-                    <img src="https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=400&q=80" alt="Bolso Tote">
-                    <div class="service-card-content">
-                        <h4>Tote Bag Premium</h4>
-                        <span class="price-tag">$$$$</span>
-                    </div>
-                </div>
+            <% } %>
+            <div style="text-align:center; margin-top:30px;">
+                <a href="/products" class="btn-agendar">Ver catálogo completo</a>
             </div>
         </div>
     </section>
-
-    <!-- Diseñadoras / Colaboradoras -->
-    <div class="collab-section">
-        <div class="collab-title-vertical">Diseñadoras</div>
-        <div class="collab-grid">
-            <div class="collab-card">
-                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80" alt="Camila Manrique">
-                <h4>Camila Manrique</h4>
-                <div class="stars">★★★★★</div>
-                <div class="social-icons"><span>𝕏</span> <span>📷</span> <span>f</span></div>
-            </div>
-            <div class="collab-card">
-                <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=300&q=80" alt="Valentina Torres">
-                <h4>Valentina Torres</h4>
-                <div class="stars">★★★★★</div>
-                <div class="social-icons"><span>𝕏</span> <span>📷</span> <span>f</span></div>
-            </div>
-            <div class="collab-card">
-                <img src="https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=300&q=80" alt="Sofía Ramírez">
-                <h4>Sofía Ramírez</h4>
-                <div class="stars">★★★★★</div>
-                <div class="social-icons"><span>𝕏</span> <span>📷</span> <span>f</span></div>
-            </div>
-        </div>
-    </div>
 
     <!-- Testimonios -->
     <section class="testimonials-section">
@@ -117,47 +101,39 @@
                 <div>
                     <div class="t-stars">★★★★★</div>
                     <div class="t-rating-number">5.0</div>
-                    <p>"El bolso que compré es increíble, la calidad del cuero es impresionante. Ya recibí mil comentarios."</p>
+                    <p>"El bolso que compré es increíble, la calidad del cuero es impresionante."</p>
                 </div>
                 <div class="client-info">
                     <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80" alt="Laura M.">
-                    <div>
-                        <h5>Laura M.</h5>
-                        <span>Clienta frecuente</span>
-                    </div>
+                    <div><h5>Laura M.</h5><span>Clienta frecuente</span></div>
                 </div>
             </div>
             <div class="testimonial-card">
                 <div>
                     <div class="t-stars">★★★★★</div>
                     <div class="t-rating-number">5.0</div>
-                    <p>"El acabado artesanal es único. Se nota el trabajo y la dedicación en cada costura. Vale cada peso."</p>
+                    <p>"El acabado artesanal es único. Se nota el trabajo y la dedicación en cada costura."</p>
                 </div>
                 <div class="client-info">
                     <img src="https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=100&q=80" alt="Andrea P.">
-                    <div>
-                        <h5>Andrea P.</h5>
-                        <span>Clienta frecuente</span>
-                    </div>
+                    <div><h5>Andrea P.</h5><span>Clienta frecuente</span></div>
                 </div>
             </div>
             <div class="testimonial-card">
                 <div>
                     <div class="t-stars">★★★★★</div>
                     <div class="t-rating-number">5.0</div>
-                    <p>"Me asesoraron perfectamente para elegir el modelo ideal. La atención personalizada marca la diferencia."</p>
+                    <p>"Me asesoraron perfectamente para elegir el modelo ideal."</p>
                 </div>
                 <div class="client-info">
                     <img src="https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=100&q=80" alt="Mariana R.">
-                    <div>
-                        <h5>Mariana R.</h5>
-                        <span>Clienta frecuente</span>
-                    </div>
+                    <div><h5>Mariana R.</h5><span>Clienta frecuente</span></div>
                 </div>
             </div>
         </div>
     </section>
 
+    <div id="contacto"></div>
     <%- include('../partials/footer') %>
 </body>
 </html>

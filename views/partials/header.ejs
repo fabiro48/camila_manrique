@@ -9,31 +9,50 @@
         <nav>
             <ul>
                 <li><a href="/products">Colección</a></li>
-                <li><a href="#">Nosotros</a></li>
-                <li><a href="#">Contacto</a></li>
+                <li><a href="/#nosotros">Nosotros</a></li>
+                <li><a href="/#contacto">Contacto</a></li>
+                <% if (locals.sessionUser && sessionUser.rol === 'admin') { %>
+                    <li><a href="/products/create" style="color: var(--accent-gold); font-weight: 600;">+ Agregar Producto</a></li>
+                <% } %>
             </ul>
         </nav>
     </div>
 
     <div style="display:flex; align-items:center; gap:12px;">
         <% if (locals.sessionUser) { %>
-            <!-- Usuario logueado -->
+            <% if (sessionUser.rol !== 'admin') { %>
+            <!-- Carrito -->
+            <a href="/cart" style="position:relative; color:var(--text-muted); text-decoration:none; font-size:20px; padding:4px 8px;" title="Mi carrito">
+                🛒
+                <% if (locals.cartCount && cartCount > 0) { %>
+                    <span style="position:absolute; top:-2px; right:-4px; background:var(--accent-gold); color:#000; font-size:10px; font-weight:800; border-radius:50%; width:16px; height:16px; display:flex; align-items:center; justify-content:center; line-height:1;">
+                        <%= cartCount %>
+                    </span>
+                <% } %>
+            </a>
+            <!-- Mis pedidos -->
+            <a href="/cart/orders" style="color:var(--text-muted); text-decoration:none; font-size:13px;" title="Mis pedidos">📦</a>
+            <% } %>
+            <!-- Perfil -->
             <a href="/users/profile" style="display:flex; align-items:center; gap:8px; text-decoration:none; color:var(--text-muted); font-size:13px;">
                 <img
                     src="/uploads/<%= sessionUser.image %>"
-                    alt="<%= sessionUser.nombre || sessionUser.name %>"
+                    alt="<%= sessionUser.nombre %>"
                     onerror="this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'"
                     style="width:32px; height:32px; border-radius:50%; object-fit:cover; border:1px solid var(--accent-gold);"
                 >
-                <span>Hola, <strong style="color:var(--text-main);"><%= (sessionUser.nombre || sessionUser.name || '').split(' ')[0] %></strong></span>
+                <span>Hola, <strong style="color:var(--text-main);"><%= (sessionUser.nombre || '').split(' ')[0] %></strong>
+                    <% if (sessionUser.rol === 'admin') { %>
+                        <span style="background:var(--accent-gold); color:#000; font-size:9px; font-weight:800; padding:1px 5px; border-radius:3px; margin-left:4px;">ADMIN</span>
+                    <% } %>
+                </span>
             </a>
             <form action="/users/logout" method="POST" style="margin:0;">
-                <button type="submit" style="background:transparent; border:1px solid var(--border-color); color:var(--text-muted); padding:8px 14px; border-radius:6px; font-size:13px; cursor:pointer; transition:border-color 0.2s;">
+                <button type="submit" style="background:transparent; border:1px solid var(--border-color); color:var(--text-muted); padding:8px 14px; border-radius:6px; font-size:13px; cursor:pointer;">
                     Salir
                 </button>
             </form>
         <% } else { %>
-            <!-- Invitado -->
             <a href="/users/login" style="color:var(--text-muted); text-decoration:none; font-size:14px;">Iniciar sesión</a>
             <a href="/users/register" class="btn-agendar">Registrarse</a>
         <% } %>
