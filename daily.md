@@ -67,3 +67,63 @@
 ---
 
 *Registros elaborados por el equipo al cierre del Sprint 3.*
+
+---
+
+# Daily Standups — Sprint 7
+
+> **Proyecto:** Camila Manrique — Marroquinería & Bolsos Exclusivos (Node.js + Express + Sequelize + MySQL)  
+> **Sprint:** 7 — Roles, validaciones, carrito y pedidos  
+> **Fecha:** Noviembre 2026
+
+---
+
+## Daily #1 — Lunes 16 de Noviembre, 2026
+
+### ¿Qué hicimos ayer?
+- Cerramos el Sprint 6 (migración a Sequelize, seeders, Docker).
+- Revisamos el estado del proyecto y listamos las carencias: CRUD sin protección, sin roles, sin carrito, home estático.
+
+### ¿Qué haremos hoy?
+- Crear `adminMiddleware` y proteger el CRUD de productos.
+- Sembrar un usuario administrador.
+- Instalar `express-validator` y validar registro, login y productos.
+
+### ¿Hay algún bloqueo?
+- Ninguno. Entrega próxima, se prioriza funcionalidad sobre estilos.
+
+---
+
+## Daily #2 — Martes 17 de Noviembre, 2026
+
+### ¿Qué hicimos ayer?
+- `adminMiddleware` y rutas de productos protegidas (403 para no administradores, redirección a login para invitados).
+- Validaciones de backend en registro, login y productos.
+
+### ¿Qué haremos hoy?
+- Modelos y migraciones `Order` y `OrderItem`.
+- Carrito en sesión y confirmación de pedido guardada en la base de datos.
+- Subida de imagen de producto con Multer en `public/images/products/`.
+
+### ¿Hay algún bloqueo?
+- MySQL en Docker estaba detenido; se levantó con `docker compose up -d`.
+
+---
+
+## Daily #3 — Miércoles 18 de Noviembre, 2026
+
+### ¿Qué hicimos ayer?
+- Carrito, checkout y vista "Mis pedidos".
+- Home con los últimos 3 productos reales desde la base de datos.
+
+### ¿Qué haremos hoy?
+- Validaciones de frontend con JavaScript en login, registro y productos.
+- Documentación ágil y actualización del README.
+- Verificación manual de flujos y ejecución de la suite de tests.
+
+### ¿Hay algún bloqueo?
+- Ninguno. Los 31 tests existentes siguen pasando.
+
+---
+
+*Registros elaborados por el equipo durante el Sprint 7.*

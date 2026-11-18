@@ -44,6 +44,7 @@ async function rememberMe(req, res, next) {
                 id:     user.id,
                 nombre: user.nombre,
                 email:  user.email,
+                rol:    user.rol,
                 image:  user.imagen
             };
         }

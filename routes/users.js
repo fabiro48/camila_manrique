@@ -1,12 +1,13 @@
+'use strict';
 const express         = require('express');
 const router          = express.Router();
 const multer          = require('multer');
 const path            = require('path');
+const { body }        = require('express-validator');
 const usersController = require('../controllers/usersController');
 const { guestOnly, authRequired } = require('../middlewares/authMiddleware');
 
-// ─── Configuración de Multer ──────────────────────────────────────────────────
-
+// --- Multer para foto de perfil ---
 const storage = multer.diskStorage({
     destination(_req, _file, cb) {
         cb(null, path.join(__dirname, '../public/uploads'));
@@ -16,36 +17,62 @@ const storage = multer.diskStorage({
         cb(null, unique + path.extname(file.originalname));
     }
 });
-
 const fileFilter = (_req, file, cb) => {
     const allowed = /jpeg|jpg|png|webp/;
-    const extOk   = allowed.test(path.extname(file.originalname).toLowerCase());
-    const mimeOk  = allowed.test(file.mimetype);
-    if (extOk && mimeOk) return cb(null, true);
-    cb(new Error('Solo se permiten imágenes JPG, PNG o WEBP.'));
+    const ok = allowed.test(path.extname(file.originalname).toLowerCase()) &&
+               allowed.test(file.mimetype);
+    ok ? cb(null, true) : cb(new Error('Solo se permiten imágenes JPG, PNG o WEBP.'));
 };
+const upload = multer({ storage, fileFilter, limits: { fileSize: 2 * 1024 * 1024 } });
 
-const upload = multer({
-    storage,
-    fileFilter,
-    limits: { fileSize: 2 * 1024 * 1024 } // 2 MB máximo
-});
+// --- Validaciones de registro ---
+const registerValidations = [
+    body('nombre')
+        .trim()
+        .notEmpty().withMessage('El nombre es obligatorio.')
+        .isLength({ min: 2, max: 50 }).withMessage('El nombre debe tener entre 2 y 50 caracteres.')
+        .matches(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/).withMessage('El nombre solo puede contener letras.'),
+    body('apellido')
+        .trim()
+        .notEmpty().withMessage('El apellido es obligatorio.')
+        .isLength({ min: 2, max: 50 }).withMessage('El apellido debe tener entre 2 y 50 caracteres.')
+        .matches(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/).withMessage('El apellido solo puede contener letras.'),
+    body('email')
+        .trim()
+        .notEmpty().withMessage('El correo es obligatorio.')
+        .isEmail().withMessage('El correo no tiene un formato válido.')
+        .normalizeEmail(),
+    body('password')
+        .notEmpty().withMessage('La contraseña es obligatoria.')
+        .isLength({ min: 6 }).withMessage('La contraseña debe tener al menos 6 caracteres.')
+        .matches(/\d/).withMessage('La contraseña debe contener al menos un número.'),
+    body('confirmPassword')
+        .custom((val, { req }) => val === req.body.password)
+        .withMessage('Las contraseñas no coinciden.')
+];
 
-// ─── Rutas ────────────────────────────────────────────────────────────────────
+// --- Validaciones de login ---
+const loginValidations = [
+    body('email')
+        .trim()
+        .notEmpty().withMessage('El correo es obligatorio.')
+        .isEmail().withMessage('El correo no tiene un formato válido.')
+        .normalizeEmail(),
+    body('password')
+        .notEmpty().withMessage('La contraseña es obligatoria.')
+];
 
-// GET  /users/register  — solo invitados
+// GET  /users/register
 router.get('/register',  guestOnly, usersController.register);
+// POST /users/register
+router.post('/register', guestOnly, upload.single('image'), registerValidations, usersController.store);
 
-// POST /users/register  — solo invitados, con subida de imagen
-router.post('/register', guestOnly, upload.single('image'), usersController.store);
-
-// GET  /users/login     — solo invitados
+// GET  /users/login
 router.get('/login',     guestOnly, usersController.login);
+// POST /users/login
+router.post('/login',    guestOnly, loginValidations, usersController.authenticate);
 
-// POST /users/login     — solo invitados
-router.post('/login',    guestOnly, usersController.authenticate);
-
-// GET  /users/profile   — solo autenticados
+// GET  /users/profile
 router.get('/profile',   authRequired, usersController.profile);
 
 // POST /users/logout
